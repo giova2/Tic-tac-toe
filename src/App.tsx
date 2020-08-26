@@ -1,41 +1,45 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import "./App.css";
+import { Grid, Tr, Td } from "./styled/styledGrid";
+import Swal from "sweetalert2";
 
-const initialArray = ["", "", "", "", "", "", "", "", ""];
+const initialArray: string[][] = [
+  ["", "", ""],
+  ["", "", ""],
+  ["", "", ""],
+];
 
 function App() {
-  const [grid, setGrid] = React.useState<string[]>([...initialArray]);
+  const [grid, setGrid] = React.useState<string[][]>([
+    [...initialArray[0]],
+    [...initialArray[1]],
+    [...initialArray[2]],
+  ]);
 
   React.useEffect(() => {
     checkGame(grid);
   }, [grid]);
 
-  const gridAction = (pos: number) => {
-    const newGrid = [...grid];
-    if (newGrid[pos] === "") {
-      newGrid[pos] = "X";
+  const gridAction = (posX: number, posY: number) => {
+    const newGrid: string[][] = [];
+    grid.map((row: string[], index: number) => (newGrid[index] = [...row]));
+    if (newGrid[posX][posY] === "") {
+      newGrid[posX][posY] = "X";
       setGrid(newGrid);
-      const gridAfterUser = [...newGrid];
-      if (pos < 8) {
-        if (gridAfterUser[pos + 1] !== "X") {
-          gridAfterUser[pos + 1] = "O";
-        } else {
-          for (let index = 0; index < gridAfterUser.length; index++) {
-            if (gridAfterUser[index] === "") {
-              gridAfterUser[index] = "O";
-              break;
-            }
-          }
-        }
+      const gridAfterUser = [[...newGrid[0]], [...newGrid[1]], [...newGrid[2]]];
+      if (posX < 2 && gridAfterUser[posX + 1][posY] === "") {
+        gridAfterUser[posX + 1][posY] = "O";
       } else {
-        if (gridAfterUser[0] === "") {
-          gridAfterUser[0] = "O";
-        } else {
-          for (let index = 0; index < gridAfterUser.length; index++) {
-            if (gridAfterUser[index] === "") {
-              gridAfterUser[index] = "O";
-              break;
+        let flagX = true;
+        for (let indexX = 0; indexX < 3; indexX++) {
+          if (flagX) {
+            for (let indexY = 0; indexY < 3; indexY++) {
+              if (gridAfterUser[indexX][indexY] === "") {
+                gridAfterUser[indexX][indexY] = "O";
+                flagX = false;
+                break;
+              }
             }
           }
         }
@@ -44,111 +48,118 @@ function App() {
     }
   };
 
-  const checkWho = (newGrid: string[], type: string) => {
+  const weHaveAWinner = (user: string) => {
+    const body =
+      user === "User"
+        ? Swal.fire("Congrats!", `${user} WON`, "success")
+        : Swal.fire("Try again!", `${user} WON`, "warning");
+    setGrid([[...initialArray[0]], [...initialArray[1]], [...initialArray[2]]]);
+  };
+
+  const gameDraw = () => {
+    Swal.fire("Game finished", "is a DRAW", "info");
+    setGrid([[...initialArray[0]], [...initialArray[1]], [...initialArray[2]]]);
+  };
+
+  const checkWho = (newGrid: string[][], type: string) => {
     const user = type === "X" ? "User" : "Machine";
-    if (
-      newGrid[3] === type &&
-      newGrid[3] === newGrid[4] &&
-      newGrid[3] === newGrid[5]
-    ) {
-      alert(`${user} WON`);
-      setGrid([...initialArray]);
-      return false;
-    }
-    if (
-      newGrid[6] === type &&
-      newGrid[6] === newGrid[7] &&
-      newGrid[6] === newGrid[8]
-    ) {
-      alert(`${user} WON`);
-      setGrid([...initialArray]);
-      return false;
-    }
-    for (let index = 0; index < newGrid.length; index++) {
-      if (index < 3 && newGrid[index] === type) {
-        if (
-          newGrid[index] === newGrid[index + 3] &&
-          newGrid[index] === newGrid[index + 6]
-        ) {
-          alert(`${user} WON`);
-          setGrid([...initialArray]);
-          return false;
-        }
-        if (index === 0) {
-          if (
-            newGrid[index] === newGrid[index + 1] &&
-            newGrid[index] === newGrid[index + 2]
-          ) {
-            alert(`${user} WON`);
-            return false;
+    const countingV = [0, 0, 0];
+    let diagonalDesc = 0;
+    let countMoves = 0;
+    for (let indexX = 0; indexX < 3; indexX++) {
+      let countingH = 0;
+      //for each loop we will have same row different column, then, if we count 3 occurrences of the same type, we have a horizontal tic tac toe
+      for (let indexY = 0; indexY < 3; indexY++) {
+        if (newGrid[indexX][indexY] === type) {
+          countingH++;
+          if (indexX === indexY) {
+            //it means that we have an element at the diagonal
+            diagonalDesc++;
           }
-          if (
-            newGrid[index] === newGrid[index + 4] &&
-            newGrid[index] === newGrid[index + 8]
-          ) {
-            alert(`${user} WON`);
-            setGrid([...initialArray]);
-            return false;
-          }
+          countingV[indexY]++;
         }
-        if (index === 2) {
-          if (
-            newGrid[index] === newGrid[index + 2] &&
-            newGrid[index] === newGrid[index + 4]
-          ) {
-            alert(`${user} WON`);
-            setGrid([...initialArray]);
-            return false;
-          }
-        }
+        countMoves =
+          newGrid[indexX][indexY] === "" ? countMoves : countMoves + 1;
       }
+      if (countingH === 3) {
+        //tictactoe horizontal
+        weHaveAWinner(user);
+        return false;
+      }
+    }
+    if (
+      newGrid[2][0] === type &&
+      newGrid[1][1] === type &&
+      newGrid[0][2] === type
+    ) {
+      //tictactoe diagonal superior
+      weHaveAWinner(user);
+      return false;
+    }
+    if (diagonalDesc === 3) {
+      //tictactoe diagonal inferior
+      weHaveAWinner(user);
+      return false;
+    }
+    for (let indexV = 0; indexV < 3; indexV++) {
+      if (countingV[indexV] === 3) {
+        // tictactoe vertical
+        weHaveAWinner(user);
+        return false;
+      }
+    }
+    if (countMoves === 9) {
+      gameDraw();
+      return false;
     }
     return true;
   };
-  const checkGame = (newGrid: string[]) => {
+
+  const checkGame = (newGrid: string[][]) => {
     checkWho(newGrid, "X") && checkWho(newGrid, "O");
+    console.log({ grid });
   };
 
   return (
     <div className="App">
       <div className="d-flex justify-content-center align-items-center tic-tac-toe">
-        <table>
+        <Grid>
           <tbody>
-            <tr>
-              <td onClick={() => gridAction(0)}>
-                <span>{grid[0]}</span>
-              </td>
-              <td onClick={() => gridAction(1)}>
-                <span>{grid[1]}</span>
-              </td>
-              <td onClick={() => gridAction(2)}>
-                <span>{grid[2]}</span>
-              </td>
-            </tr>
-            <tr>
-              <td onClick={() => gridAction(3)}>
-                <span>{grid[3]}</span>
-              </td>
-              <td onClick={() => gridAction(4)}>
-                <span>{grid[4]}</span>
-              </td>
-              <td onClick={() => gridAction(5)}>
-                <span>{grid[5]}</span>
-              </td>
-            </tr>
-            <tr>
-              <td onClick={() => gridAction(6)}>
-                <span>{grid[6]}</span>
-              </td>
-              <td onClick={() => gridAction(7)}>
-                <span>{grid[7]}</span>
-              </td>
-              <td onClick={() => gridAction(8)}>
-                <span>{grid[8]}</span>
-              </td>
-            </tr>
+            <Tr>
+              <Td onClick={() => gridAction(0, 0)}>
+                <span>{grid[0][0]}</span>
+              </Td>
+              <Td onClick={() => gridAction(0, 1)}>
+                <span>{grid[0][1]}</span>
+              </Td>
+              <Td onClick={() => gridAction(0, 2)}>
+                <span>{grid[0][2]}</span>
+              </Td>
+            </Tr>
+            <Tr>
+              <Td onClick={() => gridAction(1, 0)}>
+                <span>{grid[1][0]}</span>
+              </Td>
+              <Td onClick={() => gridAction(1, 1)}>
+                <span>{grid[1][1]}</span>
+              </Td>
+              <Td onClick={() => gridAction(1, 2)}>
+                <span>{grid[1][2]}</span>
+              </Td>
+            </Tr>
+            <Tr>
+              <Td onClick={() => gridAction(2, 0)}>
+                <span>{grid[2][0]}</span>
+              </Td>
+              <Td onClick={() => gridAction(2, 1)}>
+                <span>{grid[2][1]}</span>
+              </Td>
+              <Td onClick={() => gridAction(2, 2)}>
+                <span>{grid[2][2]}</span>
+              </Td>
+            </Tr>
           </tbody>
-        </table>
+        </Grid>
       </div>
     </div>
   );

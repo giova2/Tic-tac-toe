@@ -1,6 +1,7 @@
 .tic-tac-toe {
   height: 100vh;
   width: 100vw;
+  background: linear-gradient(90deg, #ff9a9e 0%, #fecfef 100%);
 }
 
 td {
