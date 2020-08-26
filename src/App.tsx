@@ -9,11 +9,33 @@ function App() {
 
   const gridAction = (pos: number) => {
     const newGrid = [...grid];
-    newGrid[pos] = "X";
-    if (pos < 8) {
-      newGrid[pos + 1] = "O";
+    if (newGrid[pos] === "") {
+      newGrid[pos] = "X";
+      if (pos < 8) {
+        if (newGrid[pos + 1] !== "X") {
+          newGrid[pos + 1] = "O";
+        } else {
+          for (let index = 0; index < newGrid.length; index++) {
+            if (newGrid[index] === "") {
+              newGrid[index] = "O";
+              break;
+            }
+          }
+        }
+      } else {
+        if (newGrid[0] === "") {
+          newGrid[0] = "O";
+        } else {
+          for (let index = 0; index < newGrid.length; index++) {
+            if (newGrid[index] === "") {
+              newGrid[index] = "O";
+              break;
+            }
+          }
+        }
+      }
+      setGrid(newGrid);
     }
-    setGrid(newGrid);
     checkGame(newGrid);
   };
 
