@@ -15,99 +15,80 @@ function App() {
     const newGrid = [...grid];
     if (newGrid[pos] === "") {
       newGrid[pos] = "X";
+      setGrid(newGrid);
+      const gridAfterUser = [...newGrid];
       if (pos < 8) {
-        if (newGrid[pos + 1] !== "X") {
-          newGrid[pos + 1] = "O";
+        if (gridAfterUser[pos + 1] !== "X") {
+          gridAfterUser[pos + 1] = "O";
         } else {
-          for (let index = 0; index < newGrid.length; index++) {
-            if (newGrid[index] === "") {
-              newGrid[index] = "O";
+          for (let index = 0; index < gridAfterUser.length; index++) {
+            if (gridAfterUser[index] === "") {
+              gridAfterUser[index] = "O";
               break;
             }
           }
         }
       } else {
-        if (newGrid[0] === "") {
-          newGrid[0] = "O";
+        if (gridAfterUser[0] === "") {
+          gridAfterUser[0] = "O";
         } else {
-          for (let index = 0; index < newGrid.length; index++) {
-            if (newGrid[index] === "") {
-              newGrid[index] = "O";
+          for (let index = 0; index < gridAfterUser.length; index++) {
+            if (gridAfterUser[index] === "") {
+              gridAfterUser[index] = "O";
               break;
             }
           }
         }
       }
-      setGrid(newGrid);
+      setGrid(gridAfterUser);
     }
   };
 
-  const checkGame = (newGrid: string[]) => {
-    // newGrid.map((elem: string | null, index: number) => {
+  const checkWho = (newGrid: string[], type: string) => {
+    const user = type === "X" ? "User" : "Machine";
     if (
-      newGrid[3] !== "" &&
+      newGrid[3] === type &&
       newGrid[3] === newGrid[4] &&
       newGrid[3] === newGrid[5]
     ) {
-      if (newGrid[3] === "X") {
-        alert("user WON");
-      } else {
-        alert("Machine WON");
-      }
+      alert(`${user} WON`);
       setGrid([...initialArray]);
       return false;
     }
     if (
-      newGrid[6] !== "" &&
+      newGrid[6] === type &&
       newGrid[6] === newGrid[7] &&
       newGrid[6] === newGrid[8]
     ) {
-      if (newGrid[6] === "X") {
-        alert("user WON");
-      } else {
-        alert("Machine WON");
-      }
+      alert(`${user} WON`);
       setGrid([...initialArray]);
       return false;
     }
     for (let index = 0; index < newGrid.length; index++) {
-      if (index < 3 && newGrid[index] !== "") {
+      if (index < 3 && newGrid[index] === type) {
         if (
           newGrid[index] === newGrid[index + 3] &&
           newGrid[index] === newGrid[index + 6]
         ) {
-          if (newGrid[index] === "X") {
-            alert("user WON");
-          } else {
-            alert("Machine WON");
-          }
+          alert(`${user} WON`);
           setGrid([...initialArray]);
-          break;
+          return false;
         }
         if (index === 0) {
           if (
             newGrid[index] === newGrid[index + 1] &&
             newGrid[index] === newGrid[index + 2]
           ) {
-            if (newGrid[index] === "X") {
-              alert("user WON");
-            } else {
-              alert("Machine WON");
-            }
-            setGrid([...initialArray]);
-            break;
+            alert(`${user} WON`);
+            return false;
           }
           if (
             newGrid[index] === newGrid[index + 4] &&
             newGrid[index] === newGrid[index + 8]
           ) {
-            if (newGrid[index] === "X") {
-              alert("user WON");
-            } else {
-              alert("Machine WON");
-            }
+            alert(`${user} WON`);
             setGrid([...initialArray]);
-            break;
+            return false;
           }
         }
         if (index === 2) {
@@ -115,17 +96,17 @@ function App() {
             newGrid[index] === newGrid[index + 2] &&
             newGrid[index] === newGrid[index + 4]
           ) {
-            if (newGrid[index] === "X") {
-              alert("user WON");
-            } else {
-              alert("Machine WON");
-            }
+            alert(`${user} WON`);
             setGrid([...initialArray]);
-            break;
+            return false;
           }
         }
       }
     }
+    return true;
+  };
+  const checkGame = (newGrid: string[]) => {
+    checkWho(newGrid, "X") && checkWho(newGrid, "O");
   };
 
   return (
