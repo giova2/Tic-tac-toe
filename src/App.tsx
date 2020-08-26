@@ -7,6 +7,10 @@ const initialArray = ["", "", "", "", "", "", "", "", ""];
 function App() {
   const [grid, setGrid] = React.useState<string[]>([...initialArray]);
 
+  React.useEffect(() => {
+    checkGame(grid);
+  }, [grid]);
+
   const gridAction = (pos: number) => {
     const newGrid = [...grid];
     if (newGrid[pos] === "") {
@@ -36,7 +40,6 @@ function App() {
       }
       setGrid(newGrid);
     }
-    checkGame(newGrid);
   };
 
   const checkGame = (newGrid: string[]) => {
