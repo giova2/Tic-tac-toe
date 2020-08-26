@@ -44,6 +44,32 @@ function App() {
 
   const checkGame = (newGrid: string[]) => {
     // newGrid.map((elem: string | null, index: number) => {
+    if (
+      newGrid[3] !== "" &&
+      newGrid[3] === newGrid[4] &&
+      newGrid[3] === newGrid[5]
+    ) {
+      if (newGrid[3] === "X") {
+        alert("user WON");
+      } else {
+        alert("Machine WON");
+      }
+      setGrid([...initialArray]);
+      return false;
+    }
+    if (
+      newGrid[6] !== "" &&
+      newGrid[6] === newGrid[7] &&
+      newGrid[6] === newGrid[8]
+    ) {
+      if (newGrid[6] === "X") {
+        alert("user WON");
+      } else {
+        alert("Machine WON");
+      }
+      setGrid([...initialArray]);
+      return false;
+    }
     for (let index = 0; index < newGrid.length; index++) {
       if (index < 3 && newGrid[index] !== "") {
         if (
